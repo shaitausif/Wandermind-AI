@@ -1,7 +1,20 @@
+'use client'
+
 import React from "react";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
+import { requestHandler } from "@/utils";
+import { logoutUser } from "@/lib/apiClient";
+import { useToast } from "@/context/ToastContext";
+import { useRouter } from "next/navigation";
 
 export default function TopBar() {
+
+  const { user , setUser, clearUser } = useAuth()
+  const toast = useToast()
+  const router = useRouter()
+
+
   return (
     <header className="backdrop-blur-lg bg-white/10 text-white py-4 shadow-md sticky top-0 z-50 border-b border-white/20">
       <div className="container mx-auto flex justify-between items-center px-6">
@@ -47,7 +60,9 @@ export default function TopBar() {
           </Link>
 
           {/* Profile */}
-          <Link
+          {
+            user && (
+              <Link
             href="/profile"
             className="relative group flex items-center gap-2 transition-colors duration-300 hover:text-yellow-300"
           >
@@ -61,6 +76,8 @@ export default function TopBar() {
             </svg>
             Profile
           </Link>
+            )
+          }
 
           {/* Reviews */}
           <Link
@@ -79,7 +96,36 @@ export default function TopBar() {
           </Link>
 
           {/* Login */}
-          <Link
+          {
+            user ? (
+               
+            <>
+              <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5 text-yellow-300"
+              fill="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path d="M10 17l5-5-5-5v10zM4 4h2v16H4V4z" />
+            </svg>
+            <button onClick={() => {
+              requestHandler(
+                async() => await logoutUser(),
+                null,
+                (res) => {
+                  clearUser()
+                  router.push('/login')
+                },
+              (err) => {
+                // @ts-ignore
+                toast.showToast(err.message,'error')
+              }
+              )
+            }}>Logout</button>
+          
+            </>
+            ) : (
+              <Link
             href="/login"
             className="relative group flex items-center gap-2 transition-colors duration-300 hover:text-yellow-300"
           >
@@ -93,6 +139,8 @@ export default function TopBar() {
             </svg>
             Login
           </Link>
+            )
+          }
         </nav>
       </div>
     </header>

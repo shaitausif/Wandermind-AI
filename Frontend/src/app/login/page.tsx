@@ -7,6 +7,8 @@ import Footer from "../../../components/Footer";
 import axios from "axios";
 import { requestHandler } from "@/utils";
 import { loginUser } from "@/lib/apiClient";
+import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 
 const LoginPage: React.FC = () => {
   const [emailInput, setEmailInput] = useState<string>("");
@@ -15,6 +17,8 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [mounted, setMounted] = useState(false);
   const router = useRouter();
+  const { user, setUser } = useAuth()
+  const { showToast } = useToast();
 
   useEffect(() => {
     setMounted(true);
@@ -29,6 +33,7 @@ const LoginPage: React.FC = () => {
         if(res.statusCode == 404){
           setLoginError(res.message)
         }
+        setUser(res.data)
         router.push('/')
         console.log(res.message)
       },
@@ -38,7 +43,8 @@ const LoginPage: React.FC = () => {
           // @ts-ignore
           setLoginError(err.message)
         }
-        console.log(err)
+        // @ts-ignore
+        showToast(err.message)
       }
     )
   };
@@ -89,7 +95,8 @@ const LoginPage: React.FC = () => {
             Login
           </h2>
 
-          <input
+          <form action="">
+            <input
             type="email"
             placeholder="Email"
             value={emailInput}
@@ -106,6 +113,7 @@ const LoginPage: React.FC = () => {
           />
 
           <button
+          type="submit"
             onClick={handleLogin}
             disabled={loading}
             className={`w-full p-3 rounded-xl text-white font-semibold transition 
@@ -113,6 +121,7 @@ const LoginPage: React.FC = () => {
           >
             {loading ? "Logging in..." : "Login"}
           </button>
+          </form>
 
           {loginError && (
             <p className="text-red-500 text-center mt-4">{loginError}</p>

@@ -4,6 +4,7 @@ import { ApiError } from "../utils/apiError";
 import { Request, Response } from "express";
 import { AIResponse } from "../gemini";
 import axios from 'axios'
+import { AsyncLocalStorage } from "async_hooks";
 
 
 
@@ -17,27 +18,27 @@ export const searchTrip = asyncHandler(async(req: Request, res: Response) => {
     
 
     const placesArray = extractPlacesFromLLM(response!)
-    console.log(placesArray)
+    
 
 
 
-    const placesWithCoords = await Promise.all(
-  placesArray.map(async (place: any) => {
-    const coords = await getCoordinates(place.name, placeName);
+//     const placesWithCoords = await Promise.all(
+//   placesArray.map(async (place: any) => {
+//     const coords = await getCoordinates(place.name);
+//     console.log(coords)
+//     return {
+//       ...place,
+//       // @ts-ignore
+//       lat: coords?.lat,
+//       // @ts-ignore
+//       lng: coords?.lon,
+//     };
+//   })
+// );
 
-    return {
-      ...place,
-      // @ts-ignore
-      lat: coords?.lat,
-      // @ts-ignore
-      lng: coords?.lng,
-    };
-  })
-);
 
-
-
-    return res.status(200).json(new ApiResponse(200, placesWithCoords, "Places to visit fetched successfully."))
+    
+    return res.status(200).json(new ApiResponse(200, placesArray, "Places to visit fetched successfully."))
 
 })
 
@@ -59,14 +60,15 @@ function extractPlacesFromLLM(rawString: string) {
 
 
 
-export async function getCoordinates(placeName: string, cityName = "") {
-  async function getCoordinates(place: string) {
-  const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json`);
+
+//   export async function getCoordinates(place: string) {
+//   const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(place)}&format=json`);
+//   console.log("HOYE")
+//   const data = await res.json();
   
-  const data = await res.json();
-  console.log("Response data",data)
-  return { lat: data[0].lat, lon: data[0].lon };
+
+//   return { lat: data[0].lat, lon: data[0].lon };
  
-}
-}
+// }
+
     

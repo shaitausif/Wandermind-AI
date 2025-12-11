@@ -9,12 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
-<<<<<<< HEAD
     "@reach/combobox": "^0.18.0",
     "@react-google-maps/api": "^2.20.7",
-=======
     "@heroicons/react": "^2.2.0",
->>>>>>> fd3ec3b83eb8ea2b53ecc1d6dfee066c389bab65
+
     "axios": "^1.13.2",
     "framer-motion": "^12.23.25",
     "jose": "^6.1.3",

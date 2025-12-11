@@ -1,55 +1,38 @@
 "use client";
 
-import { LocalStorage } from "@/utils";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { User } from "@/interfaces/user";
+import { createContext, useContext, useState, ReactNode } from "react";
+import { ToastMessage, ToastType } from "@/interfaces/toast";
+import ToastContainer from "../../components/Toast";
 
-interface AuthContextType {
-  user: User | null;
-  setUser: (userData: User) => void;
-  clearUser: () => void;
+interface ToastContextValue {
+  showToast: (message: string, type?: ToastType) => void;
 }
 
-const AuthContext = createContext<AuthContextType | null>(null);
+const ToastContext = createContext<ToastContextValue | null>(null);
 
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUserState] = useState<User | null>(null);
+export function ToastProvider({ children }: { children: ReactNode }) {
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  
-  // Loading user from localStorage (persist on refresh)
-  
-  useEffect(() => {
-    const storedUser = LocalStorage.get("taskpilot-user")
-    if (storedUser) {
-      setUserState(storedUser);
-    }
-  }, []);
+  const showToast = (message: string, type: ToastType = "info") => {
+    const id = crypto.randomUUID();
 
+    setToasts((prev) => [...prev, { id, message, type }]);
 
-  // Saving user to localStorage
- 
-  const setUser = (userData: User) => {
-    setUserState(userData);
-    LocalStorage.set("taskpilot-user",userData)
-  };
-
-  
-  // Clear user from state and storage
-  
-  const clearUser = () => {
-    setUserState(null);
-    LocalStorage.remove('taskpilot-user')
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 3000); // auto dismiss
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, clearUser }}>
+    <ToastContext.Provider value={{ showToast }}>
       {children}
-    </AuthContext.Provider>
+      <ToastContainer toasts={toasts} />
+    </ToastContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+export const useToast = () => {
+  const ctx = useContext(ToastContext);
+  if (!ctx) throw new Error("useToast must be used inside ToastProvider");
   return ctx;
 };

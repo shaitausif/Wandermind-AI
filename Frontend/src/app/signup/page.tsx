@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { requestHandler } from "@/utils";
 import { registerUser } from "@/lib/apiClient";
+import { useToast } from "@/context/ToastContext";
 
 interface Dot {
   top: number;
@@ -32,6 +33,8 @@ const SignupPage: React.FC = () => {
     setDots(generatedDots);
   }, []);
 
+  const { showToast } = useToast();
+
   const handleSignup = async () => {
    requestHandler(
     // @ts-ignore 
@@ -42,6 +45,8 @@ const SignupPage: React.FC = () => {
       router.push('/login')
     },
     (err) => {
+      // @ts-ignore
+      showToast(err.message,'error')
       // @ts-ignore
       if(err.statusCode == 404){
         // @ts-ignore
@@ -92,7 +97,8 @@ const SignupPage: React.FC = () => {
             Signup
           </h2>
 
-          <input
+          <form action="">
+            <input
             type="text"
             placeholder="Enter Full Name"
             value={nameInput}
@@ -125,6 +131,7 @@ const SignupPage: React.FC = () => {
           />
 
           <button
+          type="submit"
             onClick={handleSignup}
             disabled={loading}
             className={`w-full p-3 rounded-xl text-white font-semibold transition 
@@ -132,6 +139,7 @@ const SignupPage: React.FC = () => {
           >
             {loading ? "Signing up..." : "Signup"}
           </button>
+          </form>
 
           {signupError && (
             <p className="text-red-500 text-center mt-4 animate-fadeInUp delay-300">{signupError}</p>
